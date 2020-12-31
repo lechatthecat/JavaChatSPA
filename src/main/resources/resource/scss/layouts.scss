@@ -1,0 +1,42 @@
+.header-logo {
+    font-size: 20px;
+}
+.loader {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    z-index: 999;
+    margin-bottom: 1.4rem;
+    &::after {
+        animation: loader 0.5s linear infinite;
+        border: 1px solid orange;
+        border-radius: 50%;
+        border-right: 1px solid rgba(orange, 0.2);
+        border-top: 1px solid rgba(orange, 0.2);
+        content: "";
+        height: 70px;
+        width: 70px;
+    }
+}
+.waiting-loader {
+    @extend .loader;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1040;
+    margin-bottom: 0px;
+}
+.waiting-loader-token-verification {
+    @extend .loader;
+    position: relative;
+    margin-bottom: 0px;
+}
+@keyframes loader {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,101 @@
+@import "~bootstrap-vue/dist/bootstrap-vue.css";
+@import '~flag-icon-css/css/flag-icon.min.css';
+@import '~font-awesome/css/font-awesome.min.css';
+@import '~simple-line-icons/css/simple-line-icons.css';
+@import '~@coreui/icons/css/free.css';
+@import "~@coreui/coreui/scss/coreui";
+@import '~chart.js/dist/Chart.css';
+
+@import './scss/users.scss';
+@import './scss/chat.scss';
+@import './scss/messages.scss';
+@import './scss/layouts.scss';
+@import './scss/profile.scss';
+@import './scss/boards.scss';
+
+// To fix the header height.
+// Otherwise chat page will have scroll even without any message.
+.c-header {
+    max-height: 104px;
+}
+// force line break
+.line-break-inside {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+.pre-line-break {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+.visibility-none{
+    visibility: hidden;
+}
+.modal-mask {
+    position: fixed;
+    z-index: 1030;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    transition: opacity .3s ease;
+}
+.modal-mask-transparent {
+    position: fixed;
+    z-index: 1030;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity .3s ease;
+}
+.modal-wrapper {
+    z-index: 1031;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.forgot-email-modal-wrapper {
+    @extend .modal-wrapper;
+}
+@media screen and (max-width: 600px) {
+    .forgot-email-modal-wrapper {
+        width: 90%;
+    }
+}
+.input-large { display: inline-block; }
+.input-small { display: none; }
+
+@media screen and (max-width: 345px) { 
+  .input-large { display: none; }
+  .input-small { display: inline-block; }
+}
+.pointer {
+    cursor: pointer;
+}
+.w100p{
+    width:100% !important;
+}
+.h100p{
+    height:100% !important;
+    min-height: 100% !important;
+}
+.forgot-link {
+    padding-left: 15px;
+    padding-top: 5px;
+}
+@media screen and (max-width: 314px) { 
+    .sign-up-button{
+        margin-top: 1em;
+    }
+}
