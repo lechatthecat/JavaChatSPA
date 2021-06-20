@@ -25,9 +25,9 @@ $ mvn clean package
 ```
 
 Now the project should be ready. Please make sure DB in Docker "Postgress" has tables for this project. 
-If tables are not initialied in DB, you can create them by using /docker/sql/init.sql.
+If tables are not initialied in DB, you can create them by using `/docker/sql/init.sql`.
 
-If you are not using vscode, please the following:
+If you are not using vscode, please run the following:
 
 ```
 $ mvn spring-boot:run
