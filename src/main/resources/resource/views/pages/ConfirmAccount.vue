@@ -5,7 +5,7 @@
         <div class="w-200">
             <div class="clearfix">
                 <h4 class="pt-3 d-flex justify-content-center">{{comment}}</h4>
-                <div v-if="showsLoadingMark" class="waiting-loader-token-verification" style="opacity 400ms"></div>
+                <div v-if="showsLoadingMask" class="waiting-loader-token-verification" style="opacity 400ms"></div>
             </div>
       </div>
       </CCol>
@@ -19,7 +19,7 @@ export default {
    data() {
     return {
         user_token: null,
-        showsLoadingMark: true,
+        showsLoadingMask: true,
         jwtToken: null,
         xsrfToken: null,
         comment: "Please wait. Checking the token."
@@ -49,16 +49,16 @@ export default {
         } else if (response.data.successStatus == 2) {
           this.$router.push({ path: "/login?status=verification_exists" });
         } else if (response.data.successStatus == 3) {
-          this.showsLoadingMark = false;
+          this.showsLoadingMask = false;
           this.comment = "This token is already expired. Please register again."
         } else if (response.data.successStatus == 4) {
-          this.showsLoadingMark = false;
+          this.showsLoadingMask = false;
           this.comment = "Failed to Validate the token. This token is invalid."
         }
         console.log(response);
     })
     .catch((error) => {
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
         this.comment = "Failed to Validate the token. Please try again later."
     });
   },

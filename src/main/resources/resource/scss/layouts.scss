@@ -16,6 +16,8 @@
         content: "";
         height: 70px;
         width: 70px;
+        margin-top: -35px;
+        margin-left: -35px;
     }
 }
 .waiting-loader {
@@ -31,6 +33,34 @@
     position: relative;
     margin-bottom: 0px;
 }
+// loading message before the app loads
+[v-cloak] > * { display:none }
+[v-cloak]::before {
+    animation: loader 0.5s linear infinite;
+    border: 1px solid orange;
+    border-radius: 50%;
+    border-right: 1px solid rgba(orange, 0.2);
+    border-top: 1px solid rgba(orange, 0.2);
+    content: "";
+    height: 70px;
+    width: 70px;
+    position: absolute;
+    left:50%; 
+    top:50%; 
+    margin-top: -35px;
+    margin-left: -35px;
+    z-index: 1040;
+    margin-bottom: 0px;
+}
+[v-cloak]::after {
+    content: "Loading";
+    position: absolute;
+    left:50%; 
+    top:50%; 
+    transform: translate(-50%, -50%);
+    z-index: 1040;
+    margin-bottom: 0px;
+}
 @keyframes loader {
     0% {
         transform: rotate(0);
@@ -39,4 +69,18 @@
     100% {
         transform: rotate(360deg);
     }
+}
+.field-icon {
+    float: right;
+    margin-left: -18px;
+    position: relative;
+    padding-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    z-index: 2;
+}
+.fa-eye:before {
+    width: 14px;
 }

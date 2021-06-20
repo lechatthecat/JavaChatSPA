@@ -23,11 +23,11 @@ public class BoardValidator implements Validator {
         if (board.getName() == null || board.getName().length() < 3 || board.getName().length() > 100) {
             errors.rejectValue("name", "Size.boardForm.name");
         }
-        if (board.getDetail() == null || board.getDetail().length() < 1 || board.getDetail().length() > 100) {
+        if (board.getDetail() == null || board.getDetail().length() < 1 || board.getDetail().length() > 700) {
             errors.rejectValue("detail", "Size.boardForm.detail");
         }
-        // if (!board.getAgreesTerm()) {
-        //     errors.rejectValue("agreesTerm", "NotEmpty.agreesTerm");
-        // }
+        if (!board.isAgreesTerm()) {
+            errors.rejectValue("agreesTerm", "NotEmpty.agreesTerm");
+        }
     }
 }

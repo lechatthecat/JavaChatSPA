@@ -53,7 +53,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
 				User user = (User) userDetails;
-				if (user.getIsBanned()) {
+				if (user.isBanned()) {
 					// Logout
 					CookieClearingLogoutHandler cookieClearingLogoutHandler = new CookieClearingLogoutHandler(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 					SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();

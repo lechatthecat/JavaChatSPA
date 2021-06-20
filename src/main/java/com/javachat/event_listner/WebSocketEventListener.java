@@ -38,7 +38,7 @@ public class WebSocketEventListener {
 
             BoardResponse boardResponse = new BoardResponse();
             //boardResponse.setResponse(username + " left!");
-            boardResponse.setMsg_type(BoardResponse.ValidMsgType.LEAVE);
+            boardResponse.setMsgType(BoardResponse.ValidMsgType.LEAVE);
             boardResponse.setSender(username);
 
             messagingTemplate.convertAndSend("/board/public/"+string_board_id, boardResponse);

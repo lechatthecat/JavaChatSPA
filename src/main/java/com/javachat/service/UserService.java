@@ -5,6 +5,7 @@ import com.javachat.model.User;
 import java.util.List;
 
 public interface UserService {
+    int checkBeforeLogin(User user);
     boolean createUser(User user);
     boolean reCreateUser(User user);
     boolean save(User user);

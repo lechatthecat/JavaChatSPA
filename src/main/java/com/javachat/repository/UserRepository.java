@@ -11,25 +11,28 @@ import com.javachat.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("select u from User u where u.id = :id and is_deleted = false and is_verified = true")
+    @Query("select u from User u where u.id = :id and isDeleted = false and is_verified = true")
     User findById(@Param("id") long id);
-    @Query("select u from User u where u.name = :name and is_deleted = false and is_verified = true")
+    @Query("select u from User u where u.name = :name and isDeleted = false and is_verified = true")
     User findByName(String name);
-    @Query("select u from User u where u.email = :email and is_deleted = false and is_verified = true")
+    @Query("select u from User u where u.email = :email and isDeleted = false and is_verified = true")
     User findByEmail(@Param("email") String email);
     @Query("select u from User u where u.email = :email and is_verified = false")
     User findByEmailIncludesDeleted(@Param("email") String email);
-    @Query("select u from User u where u.email = :email and is_deleted = false")
+    @Query("select u from User u where u.email = :email and isDeleted = false and email <> 'Anonymous guest'")
     User findByEmailIncludesUnverified(@Param("email") String email);
-    @Query("select u from User u where u.name = :name and is_deleted = false ORDER BY u.id DESC")
+    @Query("select u from User u where u.name = :name and isDeleted = false ORDER BY u.id DESC")
     List<User> findUsersByName(@Param("name") String name);
-    @Query("select u from User u where u.email = :email and is_deleted = false ORDER BY u.id DESC")
+    @Query("select u from User u where u.email = :email and isDeleted = false ORDER BY u.id DESC")
     List<User> findUsersByEmail(@Param("email") String email);
     @Modifying(clearAutomatically = true)
-    @Query("update User u set is_deleted = true where u.id = :id")
+    @Query("update User u set isDeleted = true where u.id = :id")
     int deleteUserById(@Param("id") long id);
-    @Query("select count(u)>0 from User u where u.name = :name and is_deleted = false")
+    @Query("select count(u)>0 from User u where u.name = :name and isDeleted = false")
     boolean existsByName(String name);
-    @Query("select count(u)>0 from User u where u.email = :email and is_deleted = false")
+    @Query("select count(u)>0 from User u where u.email = :email and isDeleted = false")
     boolean existsByEmail(String email);
+    @Modifying(clearAutomatically = true)
+    @Query("update User u set u.failTimes = 0")
+    int resetNumberOfFailedLoginAttempsAllUsers();
 }

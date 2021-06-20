@@ -10,9 +10,9 @@
                 <p class="text-muted">Create new account</p>
                 <b-input-group class="mb-3">
                   <b-input-group-prepend>
-                    <b-input-group-text
-                      ><i class="icon-user"></i
-                    ></b-input-group-text>
+                    <b-input-group-text>
+                      <CIcon name="cil-contact" />
+                    </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
                     type="text"
@@ -26,7 +26,9 @@
 
                 <b-input-group class="mb-3">
                   <b-input-group-prepend>
-                    <b-input-group-text>@</b-input-group-text>
+                    <b-input-group-text>
+                      <CIcon name="cib-gmail" />
+                    </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
                     type="text"
@@ -40,33 +42,45 @@
 
                 <b-input-group class="mb-3">
                   <b-input-group-prepend>
-                    <b-input-group-text
-                      ><i class="icon-lock"></i
-                    ></b-input-group-text>
+                    <b-input-group-text>
+                      <CIcon name="cil-lock-locked" />
+                    </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
+                    ref="password"
                     type="password"
                     v-model="form.body.password"
                     class="form-control"
                     placeholder="Password"
                     autocomplete="new-password"
                   />
+                  <span 
+                    ref="passwordEye"
+                    class="fa fa-fw fa-eye field-icon toggle-password"
+                    @click="togglePasswordVisibility('password', 'passwordEye')">
+                  </span>
                   <div class="error-message">{{ form.errors.password }}</div>
                 </b-input-group>
 
                 <b-input-group class="mb-4">
                   <b-input-group-prepend>
-                    <b-input-group-text
-                      ><i class="icon-lock"></i
-                    ></b-input-group-text>
+                    <b-input-group-text>
+                      <CIcon name="cil-lock-locked" />
+                    </b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
+                    ref="passwordConfirm"
                     type="password"
                     v-model="form.body.passwordConfirm"
                     class="form-control"
                     placeholder="Password for confimation"
                     autocomplete="new-password"
                   />
+                  <span 
+                    ref="passwordConfirmEye"
+                    class="fa fa-fw fa-eye field-icon toggle-password"
+                    @click="togglePasswordVisibility('passwordConfirm', 'passwordConfirmEye')">
+                  </span>
                   <div class="error-message">{{ form.errors.passwordConfirm }}</div>
                 </b-input-group>
                 <b-input-group class="mb-4">
@@ -101,7 +115,7 @@
         </b-col>
       </b-row>
     </div>
-    <div v-if="showsloadingMark">
+    <div v-if="showsLoadingMask">
       <div class="modal-mask justify-content-center align-items-center"></div>
       <div class="waiting-loader" style="opacity 400ms"></div>
     </div>
@@ -127,7 +141,7 @@ export default {
         autoLogin: false,
         staySignedIn: false,
       },
-      showsloadingMark: false,
+      showsLoadingMask: false,
     };
   },
   methods: {
@@ -136,7 +150,7 @@ export default {
       console.log(this.form.errors);
     },
     register() {
-      this.showsloadingMark = true;
+      this.showsLoadingMask = true;
       this.$auth
         .register({
           data: this.form.body, // Axios
@@ -146,17 +160,26 @@ export default {
           staySignedIn: this.staySignedIn,
         })
         .then(null, (res) => {
-          this.showsloadingMark = false;
+          this.showsLoadingMask = false;
           if (res.response.status === 400) {
             this.errors(
               res.response.data // Axios
             );
           } else {
-            this.showsloadingMark = false;
+            this.showsLoadingMask = false;
             alert("Sorry, server error. Error:" + res.response.message);
           }
         });
     },
+    togglePasswordVisibility(elemName, passwordEye) {
+      if(this.$refs[elemName].type === "password") {
+        this.$refs[elemName].type = "text";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye-slash field-icon toggle-password";
+      } else {
+        this.$refs[elemName].type = "password";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye field-icon toggle-password";
+      }
+    }
   },
 };
 </script>

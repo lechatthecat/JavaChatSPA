@@ -2,8 +2,10 @@
 const { VueLoaderPlugin } = require('vue-loader')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
+const CompressionPlugin = require("compression-webpack-plugin");
 const path = require('path');
 const webpack = require('webpack')
 
@@ -146,8 +148,7 @@ module.exports = {
                     force: true,
                 }
             ]
-        }),
-        new ImageminPlugin(),
+        })
     ],
     devServer: {
         watchOptions: {
@@ -168,7 +169,7 @@ module.exports = {
 if (process.env.NODE_ENV === 'production') {
     const TerserWebpackPlugin = require('terser-webpack-plugin');
     const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin');
-
+    module.exports.mode = 'production';
     module.exports.devtool = false;
     module.exports.optimization.removeAvailableModules = true;
     module.exports.optimization.removeEmptyChunks = true;
@@ -183,6 +184,7 @@ if (process.env.NODE_ENV === 'production') {
         }),
         // Optimzie css code
         new OptimizeCssPlugin(),
+        new CssMinimizerPlugin(),
     ],
     // http://vue-loader.vuejs.org/en/workflow/production.html
     module.exports.plugins = (module.exports.plugins || []).concat([
@@ -197,5 +199,7 @@ if (process.env.NODE_ENV === 'production') {
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['**/*', '!robot.txt'],
         }),
+        new ImageminPlugin(),
+        new CompressionPlugin()
     ])
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role,Long>{
-    @Query("select r from Role r where r.is_deleted = false")
+    @Query("select r from Role r where r.isDeleted = false")
     List<Role> findAllNotDeleted();
     Optional<Role> findByName(String name);
 }

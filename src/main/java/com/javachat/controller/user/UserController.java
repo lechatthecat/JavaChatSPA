@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @GetMapping(path = "/user")
-    public ResponseEntity<?> getUser(HttpServletRequest request) {
+    public ResponseEntity<?> getUser(HttpServletRequest request, HttpServletResponse response) {
         final JSONObject resultJson = new JSONObject();
         final String jwt = jwtUtils.parseJwt(request);
         try {
@@ -93,7 +93,7 @@ public class UserController {
                 String username = jwtUtils.getUsernameFromToken(jwt);
                 userDetails = userDetailsService.loadUserByUsername(username);
             } else {
-                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
+                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Auth failed."));
             }
             final User user = (User) userDetails;
             final HashMap<String, String> userInfo = new HashMap<String, String>();
@@ -108,8 +108,18 @@ public class UserController {
             resultJson.put("data", userInfo);
             return new ResponseEntity<>(resultJson.toMap(), HttpStatus.OK);
         } catch (UsernameNotFoundException e){
-            logger.error(e.toString());
-            return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
+            // Logout
+            CookieClearingLogoutHandler cookieClearingLogoutHandler = new CookieClearingLogoutHandler(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+            SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
+            final Cookie cookie = cookieutil.deleteCookie("chat_board_login_token", request);
+            response.addCookie(cookie);
+            cookieClearingLogoutHandler.logout(request, response, null);
+            securityContextLogoutHandler.logout(request, response, null);
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Auth failed."));
         }
     }
 
@@ -124,7 +134,7 @@ public class UserController {
                 String username = jwtUtils.getUsernameFromToken(jwt);
                 userDetails = userDetailsService.loadUserByUsername(username);
             } else {
-                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
+                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Auth failed."));
             }
             // Delete user
             final User user = (User) userDetails;
@@ -144,11 +154,11 @@ public class UserController {
                 }
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
+                return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Auth failed."));
             }
         } catch (UsernameNotFoundException e){
             logger.error(e.toString());
-            return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
+            return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Auth failed."));
         }
     }
 }

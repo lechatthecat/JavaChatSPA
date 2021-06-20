@@ -10,6 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,16 +25,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "board_responses")
+@Getter @Setter
 public class BoardResponse implements Comparable<BoardResponse> {
 
     public enum ValidMsgType {
         CHAT,
         JOIN, 
-        LEAVE
+        LEAVE,
+        ERROR
     }
 
     @Enumerated(EnumType.STRING)
-    private ValidMsgType msg_type;
+    @Column(name="msg_type")
+    private ValidMsgType msgType;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,126 +49,60 @@ public class BoardResponse implements Comparable<BoardResponse> {
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.MERGE)
     private Board board;
-    private boolean is_deleted;
+    @Column(name="is_deleted")
+    private boolean isDeleted;
     @JsonIgnore
+    @NotFound(action = NotFoundAction.IGNORE)
+    @ManyToOne(cascade = CascadeType.MERGE)
+    private IpString ipString;
+    @Column(name="string_id")
+    private String stringId;
     @Column(name="ip_address")
     private String ipAddress;
+    @Transient
+    private String ipStringForView;
     @Column(name="is_deleted_by_admin")
     private boolean isDeletedByAdmin;
     @Column(name="is_first")
     private boolean isFirst;
+    @Column(name="res_number")
+    private int resNumber;
     @Transient
     private String sender;
     @Transient
     @JsonIgnore
-    private String board_table_url_name;
+    @Column(name="board_table_url_name")
+    private String boardTableUrlName;
     @JsonIgnore
     @Transient
-    private String category_string_id;
+    @Column(name="category_string_id")
+    private String categoryStringId;
     @Transient
-    private String user_image_path;
+    private String userImagePath;
     @JsonIgnore
     private ZonedDateTime updated;
     @JsonIgnore
     private ZonedDateTime created;
 
-    public long getId() {
-        return this.id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public ValidMsgType getMsg_type() {
-        return msg_type;
-    }
-
-    public void setMsg_type(ValidMsgType msg_type) {
-        this.msg_type = msg_type;
-    }
-
     public String getResponse() {
-        if (user != null && user.getIsBanned()) {
+        if (user != null && user.isBanned()) {
             return "This user was banned.";
         }
         return this.response;
     }
 
-    public void setResponse(String response) {
-        this.response = response;
+    public String getIpStringForView() {
+        if (this.ipString != null) {
+            return this.ipString.getStringId();
+        }
+        return this.stringId;
     }
 
     public String getIpAddress() {
+        if (this.ipString != null) {
+            return this.ipString.getIpAddress();
+        }
         return this.ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public Board getBoard() {
-        return this.board;
-    }
-
-    public void setIsDeleted(boolean is_deleted) {
-        this.is_deleted = is_deleted;
-    }
-
-    public boolean getIsDeleted() {
-        return this.is_deleted;
-    }
-
-    public void setIsDeletedByAdmin(boolean isDeletedByAdmin) {
-        this.isDeletedByAdmin = isDeletedByAdmin;
-    }
-
-    public boolean getIsDeletedByAdmin() {
-        return this.isDeletedByAdmin;
-    }
-
-    public void setIsFirst(boolean isFirst) {
-        this.isFirst = isFirst;
-    }
-
-    public boolean getIsFirst() {
-        return this.isFirst;
-    }
-
-    public void setUserImagePath(String user_image_path) {
-        this.user_image_path = user_image_path;
-    }
-
-    public String getUserImagePath() {
-        return this.user_image_path;
-    }
-
-    public void setUpdated(ZonedDateTime updated) {
-        this.updated = updated;
-    }
-
-    public ZonedDateTime getUpdated() {
-        return this.updated;
-    }
-
-    public void setCreated(ZonedDateTime created) {
-        this.created = created;
-    }
-
-    public ZonedDateTime getCreated() {
-        return this.created;
     }
 
     public String getUSStringUpdated() {
@@ -188,29 +130,13 @@ public class BoardResponse implements Comparable<BoardResponse> {
         return sender;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
     public String getBoardTable_url_name() {
         if(this.board!=null){
-            this.board_table_url_name = this.board.getTable_url_name();
-            return this.board_table_url_name;
+            this.boardTableUrlName = this.board.getTableUrlName();
+            return this.boardTableUrlName;
         }else{
-            return this.board_table_url_name;
+            return this.boardTableUrlName;
         }
-    }
-
-    public void setBoardTable_url_name(String board_table_url_name) {
-        this.board_table_url_name = board_table_url_name;
-    }
-
-    public String getCategoryStringId() {
-        return this.category_string_id;
-    }
-
-    public void setCategoryStringId(String category_string_id) {
-        this.category_string_id = category_string_id;
     }
 
     @Override

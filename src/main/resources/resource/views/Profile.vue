@@ -106,12 +106,18 @@
                             ></b-input-group-text>
                           </b-input-group-prepend>
                           <b-form-input
+                            ref="profileCurrentPassword"
                             type="password"
                             v-model="form.body.currentPassword"
                             class="form-control"
                             placeholder="Current Password"
                             autocomplete="password"
                           />
+                          <span 
+                            ref="currentPasswordEye"
+                            class="fa fa-fw fa-eye field-icon toggle-password"
+                            @click="togglePasswordVisibility('profileCurrentPassword', 'currentPasswordEye')">
+                          </span>
                           <div class="error-message">{{ form.errors.currentPassword }}</div>
                         </b-input-group>
 
@@ -122,11 +128,17 @@
                             ></b-input-group-text>
                           </b-input-group-prepend>
                           <b-form-input
+                            ref="profileNewPassword"
                             type="password"
                             v-model="form.body.password"
                             class="form-control"
                             placeholder="New Password"
                           />
+                          <span
+                            ref="newPasswordEye"
+                            class="fa fa-fw fa-eye field-icon toggle-password"
+                            @click="togglePasswordVisibility('profileNewPassword', 'newPasswordEye')">
+                          </span>
                           <div class="error-message">{{ form.errors.password }}</div>
                         </b-input-group>
 
@@ -137,11 +149,17 @@
                             ></b-input-group-text>
                           </b-input-group-prepend>
                           <b-form-input
+                            ref="profilePasswordConfirm"
                             type="password"
                             v-model="form.body.passwordConfirm"
                             class="form-control"
                             placeholder="Password for confimation"
                           />
+                          <span
+                            ref="passwordConfirmEye"
+                            class="fa fa-fw fa-eye field-icon toggle-password"
+                            @click="togglePasswordVisibility('profilePasswordConfirm', 'passwordConfirmEye')">
+                          </span>
                           <div class="error-message">{{ form.errors.passwordConfirm }}</div>
                         </b-input-group>
 
@@ -156,7 +174,7 @@
         </div>
       </transition>
     </div>
-    <div v-if="showsloadingMark">
+    <div v-if="showsLoadingMask">
       <div class="modal-mask-transparent justify-content-center align-items-center" style="z-index:1050;"></div>
       <div class="waiting-loader" style="opacity 400ms"></div>
     </div>
@@ -181,7 +199,7 @@ export default {
       xsrf: "",
       collapse: false,
       showModal: false,
-      showsloadingMark: false,
+      showsLoadingMask: false,
       showModalPasswordChange: false,
       hasButtons:true,
       comment: "You are sure that you will close your account?"
@@ -227,7 +245,7 @@ export default {
       this.showModal = true;
     },
     closeAccount() {
-      this.showsloadingMark = true;
+      this.showsLoadingMask = true;
       axios
         .post("/close_account", {
           headers: {
@@ -237,13 +255,13 @@ export default {
         }).then((res)=>{
           this.$router.push({ name: "Login" });
         }).catch((err)=>{
-          this.showsloadingMark = false;
+          this.showsLoadingMask = false;
           this.comment = "Sorry, error occured: " + err.message;
         });
     },
     changePassword() {
       this.hasButtons = false;
-      this.showsloadingMark = true;
+      this.showsLoadingMask = true;
       axios({
           method: 'post',
           url: '/change_password_profile',
@@ -254,6 +272,7 @@ export default {
           }
       }).then((response) => {
         this.showModalPasswordChange=false;
+        this.showsLoadingMask = false;
         this.hasButtons = false;
         this.comment = "Password was successfully changed.";
         this.showModal = true;
@@ -263,7 +282,7 @@ export default {
         this.form.errors = {};
       })
       .catch((error) => {
-        this.showsloadingMark = false;
+        this.showsLoadingMask = false;
         if (error.response.status === 400) {
           this.errors(
             error.response.data // Axios
@@ -280,6 +299,15 @@ export default {
       this.form.errors = res.errors;
       console.log(this.form.errors);
     },
+    togglePasswordVisibility(elemName, passwordEye) {
+      if(this.$refs[elemName].type === "password") {
+        this.$refs[elemName].type = "text";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye-slash field-icon toggle-password";
+      } else {
+        this.$refs[elemName].type = "password";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye field-icon toggle-password";
+      }
+    }
   }
 }
 </script>

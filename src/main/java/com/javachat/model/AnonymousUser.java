@@ -8,6 +8,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public class AnonymousUser implements UserDetails {
 
     private static final long serialVersionUID = 5978279130942396080L;
@@ -33,10 +37,6 @@ public class AnonymousUser implements UserDetails {
     @Override
     public String getPassword() {
         return this.password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     @Override

@@ -1,64 +1,39 @@
-## Chat app (web app) that works on desktop/mobile UI
+## SPA Chat app (web app) that works on desktop/mobile UI
 
+Desktop UI<br/>
 <img src="https://github.com/lechatthecat/JavaChatSpa/blob/master/chat_picture.png" width="50%"><br/>
+Mobile UI<br/>
 <img src="https://github.com/lechatthecat/JavaChatSpa/blob/master/mobile_chat.png" width="50%">
 
-## Cloning the project
+## How to run the project
+
+### Prerequisites
+- Java 11
+- Maven 3.*
+- Docker 20.10.6
+- Docker-compose 1.29.1
+
+How to run:
 
 ```
-$ git clone https://github.com/lechatthecat/JavaChatBoardSpa.git
-$ cd JavaChatBoard
+$ git clone https://github.com/lechatthecat/JavaChatSpa.git
+$ cd JavaChatSpa
+$ docker-compose up -d --build
+$ npm i
+$ npm run build
+$ mvn clean package
 ```
 
-## Preparet the DB
+Now the project should be ready. Please make sure DB in Docker "Postgress" has tables for this project. 
+If tables are not initialied in DB, you can create them by using /docker/sql/init.sql.
 
-At first, install postgresql, do the initial setup and login into it.
-
-Create a database "chatboard" with a user "chatadmin".
-
-```
-postgres=# CREATE DATABASE chatboard;
-postgres=# CREATE USER chatadmin WITH PASSWORD 'chatadmin';
-postgres=# \q
-```
-
-Then run the script:
+If you are not using vscode, please the following:
 
 ```
-$ psql -U chatadmin -d chatboard -a -f ./src\main\resources\sql\tables.sql -h localhost
+$ mvn spring-boot:run
 ```
 
-Then set your gmail address to enable email verication functionality in application.properties.
+If you have vscode, this project contains `.vscode` folder, so you can hit F5 to start the debug mode.
 
-```
-spring.mail.username = ###### Gmail address that can be used for sending email verification ######
-spring.mail.password = ###### Gmail address's app password that can be used for sending email verification ######
-```
+Once the project is started, go to `http://localhost:8080/` from your browser.
 
-Now install npm packages.
-
-```
-$ npm install
-$ npm run watch
-(or "$ npm run build" or "$ npm run production")
-(Use "$ npm run production" for production.)
-```
-
-Now the app should work. If you are using vscode, press on F5 in vscode after wring launch.json as follows:
-
-```json
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Debug (Launch)-JavachatApplication<javachat>",
-            "request": "launch",
-            "mainClass": "com.javachat.JavachatApplication",
-            "projectName": "javachat"
-        }
-    ]
-}
-```

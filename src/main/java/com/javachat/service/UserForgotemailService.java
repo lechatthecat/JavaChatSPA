@@ -73,6 +73,7 @@ public class UserForgotemailService {
             }
             userConfirmation.setIsUsed(true);
             userConfirmation.setUpdated(now);
+            userConfirmation.getUser().setFailTimes(0);
             userConfirmation.getUser().setPassword(bCryptPasswordEncoder.encode(passwordResetRequest.getPassword()));
             userForgotemailRepository.save(userConfirmation);
             return 1;

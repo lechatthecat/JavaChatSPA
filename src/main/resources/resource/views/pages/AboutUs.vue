@@ -5,8 +5,9 @@
         <div class="w-200">
           <div class="clearfix">
             <h4 class="pt-3">About me.</h4>
+            <p>Please note that this website is managed by <strong>an idividual</strong>, not a company, so this website can be closed anytime without notice. (e.g., when I cannot afford the server fee.)</p>
             <h4>The email address is as below:</h4>
-            <p class="text-muted">example@example.com</p>
+            <p class="text-muted">chatboard.contact@gmail.com</p>
           </div>
         </div>
       </CCol>

@@ -1,6 +1,5 @@
 <template>
   <CDropdown
-    v-if="isSignedIn()"
     inNav
     class="c-header-nav-items chat-board-default-header"
     placement="bottom-end"
@@ -10,19 +9,37 @@
       <CHeaderNavLink>
         <div class="c-avatar">
           <img
+            v-if="isSignedIn()"
             v-bind:src="getUserImage()"
+            class="c-avatar-img "
+          />
+          <img
+            v-if="!isSignedIn()"
+            src="/public/img/others/blank.svg"
             class="c-avatar-img "
           />
         </div>
       </CHeaderNavLink>
     </template>
-    <CDropdownHeader tag="div" class="text-center" color="light">
+    <CDropdownHeader
+      tag="div"
+      class="text-center"
+      color="light">
       <strong>Account</strong>
     </CDropdownHeader>
-    <CDropdownItem href="#" @click="logout">
-      <CIcon name="cil-lock-locked" /> Logout
+    <CDropdownItem
+    　 v-if="isSignedIn()"
+      href="#"
+      @click="logout">
+      <CIcon name="cil-lock-unlocked" /> Logout
     </CDropdownItem>
-    <div v-if="showsLoadingMark">
+    <CDropdownItem
+    　v-if="!isSignedIn()"
+      href="#"
+      @click="$router.push({ path: '/login' });">
+      <CIcon name="cil-lock-locked" /> Login
+    </CDropdownItem>
+    <div v-if="showsLoadingMask">
       <div class="modal-mask justify-content-center align-items-center" style="z-index:1050;"></div>
       <div class="waiting-loader" style="opacity 400ms"></div>
     </div>

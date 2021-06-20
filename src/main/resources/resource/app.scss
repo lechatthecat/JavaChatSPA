@@ -1,10 +1,5 @@
 @import "~bootstrap-vue/dist/bootstrap-vue.css";
-@import '~flag-icon-css/css/flag-icon.min.css';
-@import '~font-awesome/css/font-awesome.min.css';
-@import '~simple-line-icons/css/simple-line-icons.css';
-@import '~@coreui/icons/css/free.css';
 @import "~@coreui/coreui/scss/coreui";
-@import '~chart.js/dist/Chart.css';
 
 @import './scss/users.scss';
 @import './scss/chat.scss';
@@ -13,6 +8,23 @@
 @import './scss/profile.scss';
 @import './scss/boards.scss';
 
+.big-icon {
+    width:25px!important;
+    height:25px!important;
+}
+.pull-right{
+    float:right;
+}
+.down-minus {
+    margin-top: -1rem!important;
+}
+.msg-bottom-to-right {
+    margin-top: -0.7rem;
+    float: right;
+}
+.msg-to-right {
+    float: right;
+}
 // To fix the header height.
 // Otherwise chat page will have scroll even without any message.
 .c-header {

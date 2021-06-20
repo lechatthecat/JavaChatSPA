@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -52,10 +53,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    public int checkBeforeLogin(User user) {
+        try {
+            // User is found but email is not verified yet
+			if (user != null && !user.isVerified()){
+				return 2;
+			}
+			if (user != null && user.isBanned()){
+				return 3;
+            }
+            if (user != null && user.getFailTimes() > 5){
+				return 4;
+			}
+        } catch (DataAccessException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            e.printStackTrace();
+            return 1;
+        } catch (Exception e){
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            e.printStackTrace();
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor=Exception.class)
     public boolean deleteUser(User user) {
         try {
-            user.setIsDeleted(true);
-            user.setIsVerified(false);
+            user.setDeleted(true);
+            user.setVerified(false);
             this.userRepository.save(user);
         } catch (DataAccessException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -89,7 +116,7 @@ public class UserServiceImpl implements UserService {
             final ZonedDateTime now = utility.getCurrentSystemLocalTime();
             user.setCreated(now);
             user.setUpdated(now);
-            user.setIsDeleted(false);
+            user.setDeleted(false);
             user.setRole(new Role());
             user.getRole().setId(Constants.USER_ROLE);
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -136,7 +163,7 @@ public class UserServiceImpl implements UserService {
             final ZonedDateTime now = utility.getCurrentSystemLocalTime();
             //user.setCreated(now);
             user.setUpdated(now);
-            user.setIsDeleted(false);
+            user.setDeleted(false);
             user.setRole(new Role());
             user.getRole().setId(Constants.USER_ROLE);
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -218,53 +245,62 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("user_name")
     public User findByName(String name) {
         return userRepository.findByName(name);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("email")
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("email_with_unverified")
     public User findByEmailIncludesUnverified(String email) {
         return userRepository.findByEmailIncludesUnverified(email);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("email_with_deleted")
     public User findByEmailIncludesDeleted(String email) {
         return userRepository.findByEmailIncludesDeleted(email);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class, propagation=Propagation.REQUIRES_NEW)
+    @Cacheable("email_detached")
     public User findByEmailDetached(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("id")
     public User findById(long id) {
         return userRepository.findById(id);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("users_name")
     public List<User> findUsersByName(String name) {
         return userRepository.findUsersByName(name);
     }
 
     @Override
     @Transactional(rollbackFor=Exception.class)
+    @Cacheable("users_email")
     public List<User> findUsersByEmail(String email) {
         return userRepository.findUsersByEmail(email);
     }
 
     @Override
+    @Cacheable("users_topic")
     public List<String> getUsersOfTopic(){
         if(simpUserRegistry != null){
             if(simpUserRegistry.getUsers() != null){
@@ -279,6 +315,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable("users_topic_board")
     public List<String> getUsersOfTopic(String boardId){
         if(simpUserRegistry != null){
             if(simpUserRegistry.getUsers() != null){

@@ -2,11 +2,11 @@
   <div>
     <section id="board-content" class="content board-content">
       <div class="box-header with-border">
-        <h3 v-if="messageReceived[0].isFirst" ref="board_name" class="box-title line-break-inside">
+        <h3 v-if="messageReceived[0].first" ref="board_name" class="box-title line-break-inside">
           {{ board.name }}
         </h3>
       </div>
-      <div v-if="showsLoadingMark" class="loader" style="opacity 400ms"></div>
+      <div v-if="showsLoadingMask" class="loader" style="opacity 400ms"></div>
       <div
         class="chatbox box_content box box-warning direct-chat direct-chat-warning"
       >
@@ -17,32 +17,36 @@
           <div
             :id="'messageArea-'+index"
             class="direct-chat-messages board-height board-margin"
-            v-for="(msg, index) in messageReceived" :key="msg.id"
+            v-for="(msg, index) in messageReceived" :key="msg.resNumber"
           >
             <CAlert show color="secondary">
-              <div v-bind:id="'boardresponse-'+msg.id" v-bind:msg-id="msg.id" class="chat-msg-text alert-heading">{{msg.sender}}</div>
+              <div v-bind:id="'boardresponse-'+msg.resNumber" v-bind:msg-id="msg.resNumber" class="chat-msg-text alert-heading">
+                {{msg.resNumber}}: {{msg.sender}}
+                <p class="msg-string-id msg-to-right">id: {{msg.ipStringForView}}</p>
+              </div>
+              <div class="clearfix"></div>
               <p>
                 <pre class="pre-line-break chat-msg-text">{{msg.response}}</pre>
               </p>
               <hr>
-              <p v-if="!msg.isFirst && usernameNonEmail===msg.sender" @click="checkIfDeleteComment(msg)" class="mb-0 delete-btn msg-time pull-left">
+              <p v-if="!msg.first && usernameNonEmail===msg.sender" @click="checkIfDeleteComment(msg)" class="mb-0 delete-btn msg-time pull-left">
                 delete
               </p>
-              <p class="mb-0 msg-time pull-right">
+              <p class="mb-0 msg-time msg-bottom-to-right" :class="{ 'down-minus' : !msg.first && usernameNonEmail===msg.sender}">
                 {{msg.usstringCreated}}
               </p>
             </CAlert>
-            <span v-bind:id="'jump-to-'+msg.id"></span> 
+            <span v-bind:id="'jump-to-'+msg.resNumber"></span> 
           </div>
         </div>
       </div>
     </section>
-    <b-row v-if="isSignedIn()" class="chat-text-area-wrapper no-gutters">
+    <div class="row chat-text-area-wrapper no-gutters">
       <textarea v-model="textareaValue" @keydown="onKeyDown" @keyup="onKeyUp" id="chat-input-box"/>
       <button @click="send" id="submit-button">
-        <i class="chat-submit-button fa fa-arrow-circle-up" aria-hidden="true"></i>
+        <CIcon name="cil-arrow-circle-top" class="chat-submit-button big-icon" />
       </button>
-    </b-row>
+    </div>
     <div v-if="showModal">
       <div class="modal-mask" @click="showModal = false"></div>
       <transition name="modal">
@@ -70,7 +74,7 @@ export default {
   data () {
     return {
       stompClient: null,
-      messageReceived: [{isFirst:false,response:"",sender:null}],
+      messageReceived: [{first:false,response:"",sender:null}],
       username: "",
       usernameNonEmail: "",
       board: {},
@@ -89,10 +93,14 @@ export default {
       modalBody: "",
       hasButton: false,
       toDeleteMsg: null,
-      showsLoadingMark: false,
+      showsLoadingMask: false,
       isOpen: false,
       onePageSize: 100,
+      adLoaded: false,
       messageLoaded: false,
+      adFrequency: 15
+      // TODO If too many messages in one chat box?
+      // maybe some messages must be deleted when the num of msgs reaches at max.
     }
   },
   async created() {
@@ -123,12 +131,12 @@ export default {
           this.scrollToBottom();
         });
         this.isOpen = false;
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
         console.log("past messages:");
         console.log(res.data);
       }).catch(()=>{
         this.isOpen = false;
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
       });
   },
   mounted() {
@@ -160,13 +168,6 @@ export default {
     shouldAdBeDisplayed(index) {
       return (index !==0 && index%this.adFrequency===0);
     },
-    addGoogleAd(msg) {
-      this.$nextTick(() => {
-        // Google ad
-        (adsbygoogle = window.adsbygoogle || []).push({});
-        msg.isAdShowed = true;
-      });
-    },
     checkIfDeleteComment(msg) {
       this.modalBody = "Are you sure you will delete this message?:\n\r" + msg.response + "\n\rThis cannot be undone.";
       this.hasButton = true;
@@ -182,7 +183,8 @@ export default {
         },
         url: '/delete_board_response',
         data: {
-          id: this.toDeleteMsg.id,
+          resNumber: this.toDeleteMsg.resNumber,
+          id: this.toDeleteMsg.id
         }
       }).then((response) => {
         const index = this.messageReceived.indexOf(this.toDeleteMsg);
@@ -251,7 +253,8 @@ export default {
     },
     scrollTo (elemId) {
       // 104px is for header height
-      window.scroll(0,Number(this.findPos(document.getElementById(elemId)))-104);
+      let target = document.getElementById(elemId);
+      if (target !== null && typeof target !== "undefined") window.scroll(0,Number(this.findPos(target))-104);
     },
     findPos(obj) {
       let curtop = 0;
@@ -266,22 +269,23 @@ export default {
       const out = e.target.documentElement;
       this.isScrolledToTop = (out.scrollTop === 0);
       this.isScrolledToBottom = out.scrollHeight - out.clientHeight <= out.scrollTop + 1;
-      if (!this.messageReceived[0].isFirst && this.isConnected && this.isScrolledToTop) {
+      if (!this.messageReceived[0].first && this.isConnected && this.isScrolledToTop) {
         this.page_number = Number(this.page_number) + 1;
+        // shows loading mark in getPastMessages method.
         this.getPastMessages(this.board_id, this.page_number)
           .then((res)=>{
             this.isOpen = false;
-            this.showsLoadingMark = false;
+            this.showsLoadingMask = false;
             this.messageReceived = res.data.concat(this.messageReceived);
-            if (this.messageReceived[0].isFirst) {
+            if (this.messageReceived[0].first) {
               this.$refs.board_name.style.visibility = "visible";
               this.$el.querySelector("#first_ad").style.visibility = "visible";
             }
           })
           .catch((error)=>{
             this.isOpen = false;
-            this.showsLoadingMark = false;
-            if (this.messageReceived[0].isFirst) {
+            this.showsLoadingMask = false;
+            if (this.messageReceived[0].first) {
               this.$refs.board_name.style.visibility = "visible";
               this.$el.querySelector("#first_ad").style.visibility = "visible";
             }
@@ -291,30 +295,30 @@ export default {
           });
       }
     },
-    getTableInfo (table_url_name) {
+    getTableInfo (tableUrlName) {
       return axios
-        .get("/get_board_info/" + table_url_name, {
+        .get("/get_board_info/" + tableUrlName, {
           headers: {
             "Authorization": this.jwtToken,
             "X-XSRF-TOKEN": this.xsrfToken
           }
         }).catch(function(error){
-          this.modalBody = "Sorry, couldn't open this board.<br/>Maybe this board is already deleted.";
+          this.modalBody = "Sorry, couldn't open this board. Maybe this board is already deleted.";
           this.hasButton = false;
           this.showModal = true;
         });
     },
-    getPastMessages: function (table_url_name, page_number) {
+    getPastMessages: function (tableUrlName, pageNumber) {
       this.isOpen = true;
       setTimeout(
         function() {
           if (this.isOpen) {
-            this.showsLoadingMark = true;
+            this.showsLoadingMask = true;
           }
         }, 2000
       );
       return axios
-        .get("/get_board_responses/" + table_url_name + "/" + page_number, {
+        .get("/get_board_responses/" + tableUrlName + "/" + pageNumber, {
           headers: {
             "Authorization": this.jwtToken,
             "X-XSRF-TOKEN": this.xsrfToken
@@ -342,7 +346,7 @@ export default {
           debug: function (str) {
             console.log(str);
           },
-          reconnectDelay: 10000,
+          //reconnectDelay: 10000,
           heartbeatIncoming: 4000,
           heartbeatOutgoing: 4000,
         };
@@ -400,12 +404,16 @@ export default {
       console.log("Message received.");
       let message = JSON.parse(payload.body);
       console.log(message);
-      if (message.msg_type === "JOIN") {
-        // Do something when user joins
-      } else if (message.msg_type === "LEAVE") {
-        // Do something when user leaves
-      } else {
-        this.messageReceived.push(message);
+      if (message.msgType === 'ERROR') {
+        this.modalBody= message.response;
+        this.hasButton = false;
+        this.toDeleteMsg = null;
+        this.showModal = true;
+      } else if (message.msgType === 'CHAT' || message.msgType === null) {
+        //message.response = this.sanitize(message.response);
+        if (message.resNumber !== null && message.resNumber > 0){
+          this.messageReceived.push(message);
+        }
       }
     },
     send: function (event) {
@@ -431,7 +439,6 @@ export default {
         this.stompClient.publish(connectionOption);
         this.textareaValue = "";
       }
-      event.preventDefault();
     },
   },
 };

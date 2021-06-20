@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS boards;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS ip_strings;
 
 CREATE TABLE roles (
 	id BIGSERIAL NOT NULL ,
@@ -160,20 +161,21 @@ CREATE TABLE board_users (
 );
 
 DROP TYPE IF EXISTS validMsgType;
-CREATE TYPE validMsgType AS ENUM ('CHAT', 'JOIN', 'LEAVE');
+CREATE TYPE validMsgType AS ENUM ('CHAT', 'JOIN', 'LEAVE', 'ERROR');
 
 CREATE INDEX idx_board_users_user_id ON board_users (user_id);
 CREATE INDEX idx_board_users_board_id ON board_users (board_id);
 CREATE INDEX idx_board_users_is_deleted ON board_users (is_deleted);
 
 CREATE TABLE board_responses (
-	id BIGSERIAL NOT NULL ,
+	id BIGSERIAL NOT NULL,
 	response VARCHAR(700),
 	msg_type validMsgType,
 	board_id BIGINT NOT NULL,
 	user_id BIGINT NOT NULL,
 	ip_address VARCHAR(45) NOT NULL,
 	is_first BOOLEAN NOT NULL DEFAULT false,
+	res_number INT NOT NULL,
 	is_deleted BOOLEAN NOT NULL DEFAULT false,
 	is_deleted_by_admin BOOLEAN NOT NULL DEFAULT false,
 	updated TIMESTAMP WITH TIME ZONE,
@@ -186,3 +188,41 @@ CREATE INDEX idx_board_responses_board_id ON board_responses (board_id);
 CREATE INDEX idx_board_responses_user_id ON board_responses (user_id);
 CREATE INDEX idx_board_responses_updated ON board_responses (updated);
 CREATE INDEX idx_board_responses_created ON board_responses (created);
+
+INSERT INTO users(name, password, role_id, email, is_verified, updated, created)
+VALUES ('Anonymous guest', 'Anonymous guest', 2, 'Anonymous guest', true, Now(), Now());
+
+DROP TABLE IF EXISTS ip_strings;
+CREATE TABLE ip_strings (
+	id BIGSERIAL NOT NULL,
+    ip_address VARCHAR(45) NOT NULL UNIQUE,
+    string_id CHAR(8) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+CREATE INDEX idx_ip_string_ids_ip_address ON ip_strings (ip_address);
+
+ALTER TABLE board_responses ADD COLUMN ip_string_id BIGINT;
+ALTER TABLE board_responses ADD COLUMN string_id CHAR(8);
+
+INSERT INTO categories (url_name, name, icon, detail, is_deleted, updated, created)
+VALUES ('news', 'News', 'cil-book', 'This a category for news.', false, NOW(), NOW());
+INSERT INTO categories (url_name, name, icon, detail, is_deleted, updated, created)
+VALUES ('economy', 'Finance/Economy', 'cil-bank', 'This a category for Economy/Finance.', false, NOW(), NOW());
+INSERT INTO categories (url_name, name, icon, detail, is_deleted, updated, created)
+VALUES ('anime', 'Anime/Manga', 'cil-face', 'This a category for Anime.', false, NOW(), NOW());
+INSERT INTO categories (url_name, name, icon, detail, is_deleted, updated, created)
+VALUES ('game', 'Video Games', 'cil-gamepad', 'This a category for Video Games.', false, NOW(), NOW());
+
+UPDATE categories SET url_name = 'lounge', name = 'Lounge' WHERE url_name = 'free';
+
+ALTER TABLE categories ADD COLUMN display_order INT;
+
+UPDATE categories SET display_order = 1 WHERE url_name = 'lounge';
+UPDATE categories SET display_order = 2 WHERE url_name = 'hobby';
+UPDATE categories SET display_order = 3 WHERE url_name = 'science';
+UPDATE categories SET display_order = 4 WHERE url_name = 'news';
+UPDATE categories SET display_order = 5 WHERE url_name = 'economy';
+UPDATE categories SET display_order = 6 WHERE url_name = 'anime';
+UPDATE categories SET display_order = 7 WHERE url_name = 'game';
+UPDATE categories SET display_order = 8 WHERE url_name = 'other';

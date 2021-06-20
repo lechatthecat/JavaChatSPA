@@ -2,14 +2,31 @@ require('./bootstrap');
 
 // vue modules
 import Vue from 'vue'
-import store from '@/views/store'
+import store from '@/views/store/store'
 
 // Component files
 import App from '@/views/App'
 
 // bootstrap-vue
-import BootstrapVue from 'bootstrap-vue'
-Vue.use(BootstrapVue);
+// This imports all the layout components such as <b-container>, <b-row>, <b-col>:
+import { 
+  LayoutPlugin,
+  FormPlugin,
+  FormInputPlugin,
+  ModalPlugin,
+  CardPlugin,
+  InputGroupPlugin,
+  ButtonPlugin,
+  FormTextareaPlugin
+} from 'bootstrap-vue'
+Vue.use(LayoutPlugin)
+Vue.use(ModalPlugin)
+Vue.use(CardPlugin)
+Vue.use(FormPlugin)
+Vue.use(FormInputPlugin)
+Vue.use(InputGroupPlugin)
+Vue.use(ButtonPlugin)
+Vue.use(FormTextareaPlugin)
 
 // Vue router
 import router from '@/routes/index.js'

@@ -125,11 +125,11 @@ Vue.router = new Router({
         },
         {
             path: '/',
-            redirect: '/profile',
+            redirect: '/boards/lounge/0',
             component: DefaultContainer,
             meta: {
                 auth: true,
-                redirect: {name: 'Login'}
+                redirect: {path: '/boards/lounge/0'}
             },
             children: [
                 {
@@ -138,7 +138,7 @@ Vue.router = new Router({
                     component: Profile,
                     meta: {
                         auth: true,
-                        redirect: {name: 'Login'}
+                        redirect: {path: '/boards/lounge/0'}
                     }
                 },
                 {
@@ -162,8 +162,8 @@ Vue.router = new Router({
                     name: 'Board create',
                     component: CreateBoard,
                     meta: {
-                        auth: true,
-                        redirect: {name: 'Login'}
+                        auth: undefined,
+                        redirect: {path: '/boards/lounge/0'}
                     }
                 },
             ]
@@ -179,7 +179,7 @@ Vue.router = new Router({
         {
             path: '/404',
             name: 'Page404',
-            redirect: '/',
+            redirect: '/boards/lounge/0',
         },
     ]
 })

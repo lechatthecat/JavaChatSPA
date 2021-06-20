@@ -12,6 +12,6 @@ import com.javachat.model.User;
 
 @Repository
 public interface UserImageRepository extends JpaRepository<UserImage,Long>{
-    @Query("select ui from UserImage ui where ui.user= :user and is_deleted = false")
+    @Query("select ui from UserImage ui where ui.user= :user and isDeleted = false")
     List<UserImage> findImagesByUser(@Param("user") User user);
 }

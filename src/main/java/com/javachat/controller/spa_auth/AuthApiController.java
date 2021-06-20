@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.javachat.error.EmailAddressNotVerifiedException;
-import com.javachat.error.UserIsBannedException;
 import com.javachat.jwt.payload.request.LoginRequest;
 import com.javachat.jwt.payload.response.MessageResponse;
 import com.javachat.model.User;
@@ -36,6 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -88,17 +87,21 @@ public class AuthApiController {
 	public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response, HttpServletRequest request) {
 		try {
 			final User user = userService.findByEmailIncludesUnverified(loginRequest.getEmail());
-			// User is found but email is not verified yet
-			if (user != null && !user.getIsVerified()){
-				throw new EmailAddressNotVerifiedException("This user tried to login but the email address is not verified yet:" + user.getEmail());
+			final int checkBeforeLoginResult = userService.checkBeforeLogin(user);
+			switch (checkBeforeLoginResult) {
+				case 2:
+					return ResponseEntity.badRequest().body(new MessageResponse("Please verify your email address before login."));
+				case 3:
+					return ResponseEntity.badRequest().body(new MessageResponse("Sorry, you are banned because you violated term of use."));
+				case 4:
+					return ResponseEntity.badRequest().body(new MessageResponse("Sorry, your account was locked to protect your account. Please reset your password by using \"Forgot password\""));
 			}
-			if (user != null && user.getIsBanned()){
-				throw new UserIsBannedException("This user tried to login but this user is banned:" + user.getEmail());
-			}
-			// If user is not found, or found and email is verified, try to authorize the account
+			// If user is found and email is verified, try to authorize the account
 			final Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-			
+			// if login succeeds, reset the nomber of failed login attempts.
+			user.setFailTimes(0);
+			userService.save(user);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			final String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -115,13 +118,15 @@ public class AuthApiController {
 			resultJson.put("usernameNonEmail", userDetails.getUsernameNonEmail());
 			resultJson.put("role", role);
 			return new ResponseEntity<>(resultJson.toMap(), headers, HttpStatus.OK);
-		} catch (UsernameNotFoundException e) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username."));
-		} catch (EmailAddressNotVerifiedException e) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Please verify your email address before login."));
-		} catch (UserIsBannedException e) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Sorry, you are banned because you violated term of use."));
-		}
+		} catch (AuthenticationException authEx) {
+			// When auth fails, count up the times of failed login attempt.
+			final User user = userService.findByEmailIncludesUnverified(loginRequest.getEmail());
+			if (user != null && user.getId() > 0) {
+				user.setFailTimes(user.getFailTimes() + 1);
+				userService.save(user);
+			}
+			return ResponseEntity.badRequest().body(new MessageResponse("Email address or password is wrong. Please note you must use \"Email address\" not username. Your account will be locked after you fail to login 5 times in a row."));
+	 	}
 	}
 
 	@PostMapping(path = "/logout")
@@ -179,9 +184,17 @@ public class AuthApiController {
 			resultJson.put("data", userInfo);
 			return new ResponseEntity<>(resultJson.toMap(), headers, HttpStatus.OK);
 		} catch (UsernameNotFoundException e){
-			logger.error(e.toString());
-			final Cookie cookie = cookieutil.deleteCookie("chat_board_login_token", request);
-			response.addCookie(cookie);
+            // Logout
+            CookieClearingLogoutHandler cookieClearingLogoutHandler = new CookieClearingLogoutHandler(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+            SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
+            final Cookie cookie = cookieutil.deleteCookie("chat_board_login_token", request);
+            response.addCookie(cookie);
+            cookieClearingLogoutHandler.logout(request, response, null);
+            securityContextLogoutHandler.logout(request, response, null);
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: token is empty or invalid."));
 		}
 	}

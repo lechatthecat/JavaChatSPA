@@ -9,10 +9,10 @@ import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category,Long> {
-    @Query("select c from Category c where c.id = :id and c.is_deleted = false")
+    @Query("select c from Category c where c.id = :id and c.isDeleted = false")
     Category findCategoryById(@Param("id") long id);
-    @Query("select c from Category c where c.url_name = :url_name and c.is_deleted = false")
-    Category findCategoryByUrlname(@Param("url_name") String urlName);
-    @Query("select c from Category c where c.is_deleted = false")
+    @Query("select c from Category c where c.urlName = :urlName and c.isDeleted = false")
+    Category findCategoryByUrlname(@Param("urlName") String urlName);
+    @Query("select c from Category c where c.isDeleted = false order by display_order asc")
     List<Category> findAllUndeletedCategories();
 }

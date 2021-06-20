@@ -1,6 +1,6 @@
 <template>
   <div class="c-app flex-row align-items-center">
-    <div v-if="showsLoadingMark">
+    <div v-if="showsLoadingMask">
       <div class="modal-mask justify-content-center align-items-center"></div>
       <div class="waiting-loader" style="opacity 400ms"></div>
     </div>
@@ -19,12 +19,18 @@
                     ></b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
-                    type="password"
+                    ref="password"
+                    type="text"
                     v-model="form.body.password"
                     class="form-control"
                     placeholder="Password"
                     autocomplete="new-password"
                   />
+                  <span 
+                    ref="passwordEye"
+                    class="fa fa-fw fa-eye field-icon toggle-password"
+                    @click="togglePasswordVisibility('password', 'passwordEye')">
+                  </span>
                   <div class="error-message">{{ form.errors.password }}</div>
                 </b-input-group>
 
@@ -35,12 +41,18 @@
                     ></b-input-group-text>
                   </b-input-group-prepend>
                   <b-form-input
-                    type="password"
+                    ref="passwordConfirm"
+                    type="text"
                     v-model="form.body.passwordConfirm"
                     class="form-control"
                     placeholder="Password for confimation"
                     autocomplete="new-password"
                   />
+                  <span 
+                    ref="passwordConfirmEye"
+                    class="fa fa-fw fa-eye field-icon toggle-password"
+                    @click="togglePasswordVisibility('passwordConfirm', 'passwordConfirmEye')">
+                  </span>
                   <div class="error-message">{{ form.errors.passwordConfirm }}</div>
                 </b-input-group>
 
@@ -83,7 +95,7 @@ export default {
       },
       showModal: false,
       modal_comment: "",
-      showsLoadingMark: false,
+      showsLoadingMask: false,
     };
   },
   created () {
@@ -95,7 +107,7 @@ export default {
       console.log(this.form.errors);
     },
     register() {
-      this.showsLoadingMark = true;
+      this.showsLoadingMask = true;
       axios({
           method: 'post',
           url: '/change_password',
@@ -108,16 +120,16 @@ export default {
         if (response.data.successStatus == 1) {
           this.$router.push({ path: "/login?status=password_changed" });
         } else if (response.data.successStatus == 3) {
-          this.showsLoadingMark = false;
+          this.showsLoadingMask = false;
           this.comment = "This token is already expired."
         } else {
-          this.showsLoadingMark = false;
+          this.showsLoadingMask = false;
           this.comment = "Failed to Validate the token. This token is invalid."
         }
         console.log(response);
       })
       .catch((error) => {
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
         if (error.response.status === 400) {
           if (error.response.data.successStatus === 4) {
             this.errors(
@@ -128,12 +140,21 @@ export default {
             this.modal_comment = error.response.data.message;
           }
         } else {
-          this.showsLoadingMark = false;
+          this.showsLoadingMask = false;
           this.showModal = true;
           this.modal_comment = "Sorry, server error. Error:" + error.response.message;
         }
       });
     },
+    togglePasswordVisibility(elemName, passwordEye) {
+      if(this.$refs[elemName].type === "password") {
+        this.$refs[elemName].type = "text";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye-slash field-icon toggle-password";
+      } else {
+        this.$refs[elemName].type = "password";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye field-icon toggle-password";
+      }
+    }
   },
 };
 </script>

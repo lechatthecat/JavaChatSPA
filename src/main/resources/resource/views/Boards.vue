@@ -10,7 +10,7 @@
                   <CCol sm="12">
                     <CCallout color="info">
                       <strong class="h4">Boards in this category</strong><br/>
-                      Please note that boards are deleted 3 weeks later from the creation.
+                      Please note that boards are archived when the number of its responds reach 1000.
                     </CCallout>
                   </CCol>
                 </CRow>
@@ -22,9 +22,18 @@
                         <span class="line-break-inside progress-group-text">
                           {{ board[0].replace(/(\r\n|\n|\r)/gm, " ") }}
                         </span>
+                        <span class="float-right line-break-inside progress-group-text">
+                          {{ board[6] }} responses
+                        </span>
                       </div>
                       <div class="board-detail-line">
-                        <span class="line-break-inside progress-group-bars board-name">
+                        <span v-if="board[1].length > 100" class="line-break-inside progress-group-bars board-name">
+                          {{ board[1].replace(/(\r\n|\n|\r)/gm, " ").substring(0, 100) }} 
+                            <span class="progress-group-text">
+                              ...
+                            </span>
+                        </span>
+                        <span v-if="board[1].length < 100" class="line-break-inside progress-group-bars board-name">
                           {{ board[1].replace(/(\r\n|\n|\r)/gm, " ") }}
                         </span>
                       </div>
@@ -46,7 +55,7 @@
                     {{ "No board is created yet." }}
                   </div>
                 </div>
-                <div v-if="showsLoadingMark" class="loader mt-5" style="opacity 400ms"></div>
+                <div v-if="showsLoadingMask" class="loader mt-5" style="opacity 400ms"></div>
               </CCol>
             </CRow>
             <br/>
@@ -90,7 +99,7 @@ export default {
       modalBody: "",
       hasButton: false,
       toDeleteBoard: null,
-      showsLoadingMark: false,
+      showsLoadingMask: false,
       isOpen: false,
       onePageSize: 50,
       isScrolledToBottom: false,
@@ -99,7 +108,9 @@ export default {
   },
   created () {
     this.category_string_id = this.$route.params.category_string_id;
-    this.usernameNonEmail = this.$auth.user().usernameNonEmail;
+    if (this.isSignedIn()) {
+      this.usernameNonEmail = this.$auth.user().usernameNonEmail;
+    } 
     this.page_number = this.$route.params.page_number;
     this.$store.commit('set', ['footerShow', true]);
     this.$store.commit('set', ['categoryStringId', this.$route.params.category_string_id]);
@@ -112,7 +123,7 @@ export default {
     this.getBoards()
       .then((res)=>{
         thisScope.isOpen = false;
-        thisScope.showsLoadingMark = false;
+        thisScope.showsLoadingMask = false;
         thisScope.boards = res.data.content;
         console.log("boards:");
         console.log(thisScope.boards);
@@ -122,8 +133,8 @@ export default {
       })
       .catch((error)=>{
         thisScope.isOpen = false;
-        thisScope.showsLoadingMark = false;
-        thisScope.modalBody= "Failed to get the boards.<br/>Error: " + error.message;
+        thisScope.showsLoadingMask = false;
+        thisScope.modalBody= "Failed to get the boards. Error: " + error.message;
         thisScope.hasButton = false;
         thisScope.toDeleteMsg = null;
         thisScope.showModal = true;
@@ -174,12 +185,12 @@ export default {
                 this.areAllLoaded = true;
               }
               thisScope.isOpen = false;
-              thisScope.showsLoadingMark = false;
+              thisScope.showsLoadingMask = false;
               thisScope.boards = thisScope.boards.concat(res.data.content);
             })
             .catch((error)=>{
               thisScope.isOpen = false;
-              thisScope.showsLoadingMark = false;
+              thisScope.showsLoadingMask = false;
             });
         }
       }
@@ -190,7 +201,7 @@ export default {
       setTimeout(
         function() {
           if (thisScope.isOpen) {
-            thisScope.showsLoadingMark = true;
+            thisScope.showsLoadingMask = true;
           }
         }, 2000
       );
@@ -212,7 +223,7 @@ export default {
         },
         url: '/delete_board',
         data: {
-          table_url_name: this.toDeleteBoard[2],
+          tableUrlName: this.toDeleteBoard[2],
         }
       }).then(function (response) {
         const index = thisScope.boards.indexOf(thisScope.toDeleteBoard);
@@ -225,7 +236,7 @@ export default {
         thisScope.showModal = true;
       })
       .catch(function (error) {
-        thisScope.modalBody= "Failed to delete the message.\n\rError: " + error.message;
+        thisScope.modalBody= "Failed to delete the board.\n\rError: " + error.message;
         thisScope.hasButton = false;
         thisScope.toDeleteMsg = null;
         thisScope.showModal = true;

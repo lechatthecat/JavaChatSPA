@@ -19,8 +19,8 @@
                   </div>
                   <b-input-group class="mb-3">
                     <b-input-group-prepend
-                      ><b-input-group-text
-                        >@</b-input-group-text
+                      ><b-input-group-text style="width:35px"
+                        ><CIcon name="cib-gmail"/></b-input-group-text
                       ></b-input-group-prepend
                     >
                     <b-form-input
@@ -34,10 +34,11 @@
                   </b-input-group>
                   <b-input-group class="mb-4">
                     <b-input-group-prepend
-                      ><b-input-group-text
-                        ><i class="icon-lock"></i></b-input-group-text
+                      ><b-input-group-text style="width:35px"
+                        ><CIcon name="cil-lock-locked" /></b-input-group-text
                     ></b-input-group-prepend>
                     <b-form-input
+                      ref="loginPasswordConfirm"
                       type="password"
                       class="form-control"
                       placeholder="Password"
@@ -45,6 +46,11 @@
                       v-model="form.body.password"
                       v-on:keyup.enter="login"
                     />
+                    <span 
+                      ref="passwordEye"
+                      class="fa fa-fw fa-eye field-icon toggle-password"
+                      @click="togglePasswordVisibility('loginPasswordConfirm', 'passwordEye')">
+                    </span>
                   </b-input-group>
                   <b-row>
                     <b-col cols="12">
@@ -61,6 +67,9 @@
                         >Sign up</CLink
                       >
                     </b-col>
+                    <div class="text-right forgot-link">
+                      <b-button @click="$router.push({ path: '/boards/lounge/0' });" variant="link" class="px-0">Boards</b-button>
+                    </div>
                     <div class="text-right forgot-link">
                       <b-button @click="showForgotPasswordModal" variant="link" class="px-0">Forgot password?</b-button>
                     </div>
@@ -111,7 +120,7 @@
         </div>
       </transition>
     </div>
-    <div v-if="showsloadingMark">
+    <div v-if="showsLoadingMask">
       <div class="modal-mask-transparent justify-content-center align-items-center" style="z-index:1050;"></div>
       <div class="waiting-loader" style="opacity 400ms"></div>
     </div>
@@ -143,7 +152,7 @@ export default {
       emailAddressSmall: null,
       comment: null,
       modal_comment: "",
-      showsloadingMark: false,
+      showsLoadingMask: false,
       hasButton: false,
     };
   },
@@ -179,7 +188,7 @@ export default {
       this.modal_comment = "Do you want to send password reset link to your email?";
     },
     login() {
-      this.showsloadingMark = true;
+      this.showsLoadingMask = true;
       this.shows_comment = false;
       this.hasErrors = false;
       console.log("Trying to login...");
@@ -199,7 +208,7 @@ export default {
             this.success(res);
           },
           (res) => {
-            this.showsloadingMark = false;
+            this.showsLoadingMask = false;
             console.log("Errors found in form data.");
             console.log(res);
             this.errors(res);
@@ -240,7 +249,7 @@ export default {
       if (emailAddress === null || emailAddress.length === 0) {
         return;
       }
-      this.showsloadingMark = true;
+      this.showsLoadingMask = true;
       axios({
         method: 'post',
         url: '/send_forgot_email',
@@ -251,12 +260,21 @@ export default {
         this.forgot_email_error_message = "";
         this.has_error_email = false;
         this.hasButton = false;
-        this.showsloadingMark = false;
+        this.showsLoadingMask = false;
         this.modal_comment = "If this email was already registered, an email to reset password was sent to it.";
       }).catch((res)=>{
         this.forgot_email_error_message = "Email couldn't be sent. Please check your email address format.";
-        this.showsloadingMark = false;
+        this.showsLoadingMask = false;
       });
+    },
+    togglePasswordVisibility(elemName, passwordEye) {
+      if(this.$refs[elemName].type === "password") {
+        this.$refs[elemName].type = "text";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye-slash field-icon toggle-password";
+      } else {
+        this.$refs[elemName].type = "password";
+        this.$refs[elemName].$parent.$refs[passwordEye].classList.value = "fa fa-fw fa-eye field-icon toggle-password";
+      }
     }
   },
 };

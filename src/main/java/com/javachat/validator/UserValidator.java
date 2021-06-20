@@ -50,7 +50,7 @@ public class UserValidator implements Validator {
         if (!user.getPasswordConfirm().equals(user.getPassword())) {
             errors.rejectValue("passwordConfirm", "Diff.userForm.passwordConfirm");
         }
-        if (!user.getAgreesTerm()) {
+        if (!user.isAgreesTerm()) {
             errors.rejectValue("agreesTerm", "NotEmpty.agreesTerm");
         }
     }

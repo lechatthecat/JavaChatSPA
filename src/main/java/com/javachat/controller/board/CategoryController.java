@@ -35,7 +35,7 @@ public class CategoryController {
             for (Category category : categories) {
                 final HashMap<String, String> result = new HashMap<String, String>();
                 result.put("name", category.getName());
-                result.put("url_name", category.getUrlName());
+                result.put("urlName", category.getUrlName());
                 result.put("icon", category.getIcon());
                 resultCategories.add(result);
             }

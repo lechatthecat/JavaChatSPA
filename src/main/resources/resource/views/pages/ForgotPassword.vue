@@ -5,7 +5,7 @@
         <div class="w-200">
             <div class="clearfix">
                 <h4 class="pt-3 d-flex justify-content-center">{{comment}}</h4>
-                <div v-if="showsLoadingMark" class="waiting-loader-token-verification" style="opacity 400ms"></div>
+                <div v-if="showsLoadingMask" class="waiting-loader-token-verification" style="opacity 400ms"></div>
             </div>
       </div>
       </CCol>
@@ -19,7 +19,7 @@ export default {
    data() {
     return {
         user_token: null,
-        showsLoadingMark: true,
+        showsLoadingMask: true,
         jwtToken: null,
         comment: "Please wait. Checking the token."
     };
@@ -33,7 +33,7 @@ export default {
     }
   },
   mounted () {
-    this.showsLoadingMark = true;
+    this.showsLoadingMask = true;
     axios({
         method: 'post',
         headers: {
@@ -51,11 +51,11 @@ export default {
         } else {
           this.comment = "Failed to Validate the token. This token is invalid."
         }
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
         console.log(response);
     })
     .catch((error) => {
-        this.showsLoadingMark = false;
+        this.showsLoadingMask = false;
         this.comment = "Failed to Validate the token. Please try again later."
     });
   },

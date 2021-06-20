@@ -36,14 +36,14 @@ export default {
     if (this.nav[0]._children.length === 0) {
       await this.addMenusInSideNav(this.nav);
     }
-    if (this.isSignedIn()) {
+    //if (this.isSignedIn()) {
       console.log("route");
       console.log(this.$router);
       console.log(this.$router.currentRoute);
       if (["Boards", "Chat"].indexOf(this.$router.currentRoute.name) > -1) {
         this.addCreateBoardButton(this.nav);
       }
-    }
+    //}
     this.$store.commit('set', ['nav', this.nav]);
   },
   computed: {
@@ -63,6 +63,7 @@ export default {
         .get("/get_categories");
     },
     async addMenusInSideNav(nav) {
+      // add profile link
       if (this.isSignedIn()) {
         nav[0]._children.push({
           _name: 'CSidebarNavTitle',
@@ -81,17 +82,17 @@ export default {
       });
       const res = await this.setBoardCategories();
       this.categories = res.data;
-      this.categories.forEach(category => {
+      this.categories.map(category => {
         nav[0]._children.push({
           _name: 'CSidebarNavItem',
           name: category.name,
-          to: '/boards/' + category.url_name + '/0',
+          to: '/boards/' + category.urlName + '/0',
           icon: category.icon
         });
       });
     },
     addCreateBoardButton(nav) {
-      if (this.isSignedIn()) {
+      //if (this.isSignedIn()) {
         const lastElement = nav[0]._children[nav[0]._children.length - 1];
         if (lastElement.name !== "CreateBoard") {
           nav[0]._children.push({
@@ -105,7 +106,7 @@ export default {
             icon: 'cil-pencil'
           });
         }
-      }
+      //}
     }
   }
 }

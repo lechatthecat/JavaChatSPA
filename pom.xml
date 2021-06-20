@@ -11,7 +11,7 @@
 	<groupId>com</groupId>
 	<artifactId>javachat</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>javachat</name>
 	<description>Java's chat project by Spring Boot</description>
 

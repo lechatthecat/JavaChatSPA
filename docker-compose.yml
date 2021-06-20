@@ -1,0 +1,22 @@
+version: '3.5'
+
+services:
+    postgres_db:
+        # image name
+        image: postgres
+        # Password and user name of the container
+        environment:
+            POSTGRES_USER: 'postgres_test'
+            POSTGRES_PASSWORD: 'postgres_test'
+            POSTGRES_DB: postgres
+            TZ: "Asia/Tokyo"
+        # Which port should be exposed
+        ports:
+            - 5432:5432
+        container_name: test_postgres_db
+        volumes:
+            # Where to save the mysql's log
+            - ./docker/logs:/var/log/postgres:z
+            # init db
+            - ./docker/sql:/docker-entrypoint-initdb.d
+

@@ -54,7 +54,7 @@ public class UserConfirmationService {
             }
             userConfirmation.setIsVerified(true);
             userConfirmation.setUpdated(now);
-            userConfirmation.getUser().setIsVerified(true);
+            userConfirmation.getUser().setVerified(true);
             userConfirmationRepository.save(userConfirmation);
             return 1;
         } catch (Exception e) {

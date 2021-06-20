@@ -4,7 +4,7 @@
     v-if="footerShow"
     >
     <div style="color:#808080;font-size: 12px;">
-      <span class="ml-1 pointer" @click="$router.push({ name: 'AboutUs' })">&copy; {{new Date().getFullYear()}} TestTestTest.</span>
+      <span class="ml-1 pointer" @click="$router.push({ name: 'AboutUs' })">&copy; {{new Date().getFullYear()}} Lechatthecat.</span>
     </div>
     <div class="ml-1 pointer" style="color:#808080;font-size: 12px;">
       <span @click="$router.push({ name: 'PrivacyPolicy' });">Privacy Policy</span>

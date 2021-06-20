@@ -15,8 +15,11 @@
     </CHeaderBrand>
     <CHeaderNav class="d-md-down-none mr-auto">
       <CHeaderNavItem class="px-3">
-        <CHeaderNavLink to="/profile">
+        <CHeaderNavLink v-if="isSignedIn()" to="/profile">
           Profile
+        </CHeaderNavLink>
+       <CHeaderNavLink v-if="!isSignedIn()" to="/boards/lounge/0">
+          Boards
         </CHeaderNavLink>
       </CHeaderNavItem>
       <!-- <CHeaderNavItem class="px-3">

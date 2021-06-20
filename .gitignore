@@ -31,7 +31,7 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+#.vscode/
 
 ### frontend ###
 /src/main/resources/static/public/**
