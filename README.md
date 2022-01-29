@@ -1,7 +1,5 @@
 ## SPA Chat app (web app) that works on desktop/mobile UI
 
-Working example: https://chatboard.page/boards/lounge/0
-
 Desktop UI<br/>
 <img src="https://github.com/lechatthecat/JavaChatSpa/blob/master/chat_picture.png" width="50%"><br/>
 Mobile UI<br/>
